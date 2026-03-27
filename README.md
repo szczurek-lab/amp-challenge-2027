@@ -31,7 +31,7 @@ Verify your submission with:
 python scripts/verify_submission.py <github-url>
 ```
 
-This clones your repo, installs dependencies, generates 50,000 sequences, and checks them for validity.
+This clones your repo, installs dependencies, generates 50,000 sequences, and checks that the repository structure, entry point, and sequences all meet the competition requirements.
 
 Additional options:
 

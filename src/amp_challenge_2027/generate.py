@@ -35,7 +35,7 @@ def main():
     parser.add_argument(
         "--length",
         type=int,
-        default=10,
+        default=50,
         help="Length of each sequence",
     )
 
