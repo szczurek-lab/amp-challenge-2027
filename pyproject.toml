@@ -14,7 +14,11 @@ dependencies = [
 ]
 
 [project.scripts]
-generate = "amp_challenge_2027.generate:main"
+generate_broad_spectrum = "amp_challenge_2027.generate:main"
+generate_gram_pos = "amp_challenge_2027.generate:main"
+generate_gram_neg = "amp_challenge_2027.generate:main"
+generate_mdr = "amp_challenge_2027.generate:main"
+generate_therapeutic = "amp_challenge_2027.generate:main"
 
 [build-system]
 requires = ["uv_build>=0.9.18,<0.10.0"]
