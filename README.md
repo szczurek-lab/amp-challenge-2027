@@ -4,7 +4,7 @@ International competition for generative AI in antimicrobial peptide design.
 
 ## Submission Requirements
 
-Your submission must be a public GitHub repository that:
+Your submission must be hosted on a public GitHub repository that:
 
 - Uses **`uv`** for dependency management (include `uv.lock` and a defined Python version)
 - Produces **reproducible** output: running the script twice with the same inputs must produce identical sequences (e.g., by defining a fixed default seed)
@@ -21,7 +21,7 @@ Any additional optional arguments must have default values so the command runs w
 Generated sequences must:
 
 - Use only standard amino acid characters (`ACDEFGHIKLMNPQRSTVWY`)
-- Be between 5 and 60 residues long
+- Be between 10 and 60 residues long
 - Be unique (no duplicates)
 
 ## Validation
