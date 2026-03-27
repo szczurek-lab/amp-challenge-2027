@@ -127,10 +127,10 @@ python scripts/verify_submission.py <github-url> <category>
 
 This clones your repo, installs dependencies, generates 50,000 sequences, verifies they meet the competition requirements, then generates them again to confirm the output is reproducible.
 
-Additional options:
-
-| Flag | Default | Description |
-|------|---------|-------------|
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `url` | — | GitHub repository URL (required positional) |
+| `category` | — | Category entry point to verify (required positional) |
 | `--branch` | repo default | Git branch to clone |
 | `--dir` | `submission/` | Directory to clone into |
 | `--n-sequences` | `50000` | Number of sequences to generate |
