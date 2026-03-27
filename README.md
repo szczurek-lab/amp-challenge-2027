@@ -24,7 +24,7 @@ Generated sequences must:
 - Be between 10 and 60 residues long
 - Be unique (no duplicates)
 - Be linear
-- Not contain any end terminus modifcations.
+- Not contain any end terminus modifications.
 
 ## Quick Start
 
