@@ -1,11 +1,17 @@
 import argparse
+import os
 
 import numpy as np
 import seqme as sm
 
 
 def generate(n_sequences: int, *, length: int, seed: int = 42) -> list[str]:
-    p = np.loadtxt("./checkpoint/weights.csv", delimiter=",")
+    try:
+        p = np.loadtxt("./checkpoint/weights.csv", delimiter=",")
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"./checkpoint/weights.csv not found (cwd: {os.getcwd()})"
+        )
 
     # Randomly sample either amino-acid "K" or "P" based on probability p
     rng = np.random.default_rng(seed)

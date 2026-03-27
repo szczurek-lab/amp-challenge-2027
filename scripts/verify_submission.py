@@ -45,10 +45,11 @@ def _sync_uv(repo_dir: Path, extras: list[str], uv: str = "uv") -> None:
     extra_flags = [flag for extra in extras for flag in ("--extra", extra)]
     try:
         subprocess.run(
-            [uv, "sync", "--project", str(repo_dir), *extra_flags],
+            [uv, "sync", *extra_flags],
             stderr=subprocess.PIPE,
             text=True,
             check=True,
+            cwd=repo_dir,
         )
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"uv sync failed:\n{e.stderr}") from e
@@ -65,8 +66,6 @@ def _uv_run(
         uv,
         "run",
         "--no-sync",
-        "--project",
-        str(repo_dir),
         category,
         "--n_sequences",
         str(n_sequences),
@@ -179,7 +178,7 @@ def verify_setup(
             "Reproducibility check failed: two runs with identical inputs produced different sequences."
         )
 
-    print("\nAll checks passed. Submission is valid!")
+    print(f"\nAll checks passed. Submission is valid for category '{category}'!")
 
 
 if __name__ == "__main__":
