@@ -1,0 +1,21 @@
+[project]
+name = "amp-challenge-2027"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "your name", email = "username@domain.com" }
+]
+
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.2.6",
+    "seqme>=0.5.0",
+]
+
+[project.scripts]
+generate = "amp_challenge_2027.generate:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
