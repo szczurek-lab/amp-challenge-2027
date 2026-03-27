@@ -8,6 +8,14 @@ STANDARD_AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
 MIN_LENGTH = 10
 MAX_LENGTH = 60
 
+CATEGORIES = [
+    "generate_broad_spectrum",
+    "generate_gram_pos",
+    "generate_gram_neg",
+    "generate_mdr",
+    "generate_therapeutic",
+]
+
 
 def _clone_git_repository(
     repo_dir: Path,
@@ -48,7 +56,7 @@ def _sync_uv(repo_dir: Path, extras: list[str], uv: str = "uv") -> None:
 
 def _uv_run(
     repo_dir: Path,
-    script_name: str,
+    category: str,
     output_fasta: Path,
     n_sequences: int,
     uv: str = "uv",
@@ -59,7 +67,7 @@ def _uv_run(
         "--no-sync",
         "--project",
         str(repo_dir),
-        script_name,
+        category,
         "--n_sequences",
         str(n_sequences),
         "--output",
@@ -142,8 +150,8 @@ def _verify_sequences(fasta_path: Path, n_sequences: int) -> None:
 def verify_setup(
     dir: Path,
     url: str,
+    category: str,
     branch: str | None = None,
-    script_name: str = "generate",
     n_sequences: int = 100,
     extras: list[str] | None = None,
 ):
@@ -159,13 +167,13 @@ def verify_setup(
     run2 = (dir / "generated_run2.fasta").resolve()
 
     print(f"[3/5] Generating {n_sequences} sequences")
-    _uv_run(dir, script_name, run1, n_sequences)
+    _uv_run(dir, category, run1, n_sequences)
 
     print("[4/5] Verifying sequences")
     _verify_sequences(run1, n_sequences)
 
     print("[5/5] Checking reproducibility")
-    _uv_run(dir, script_name, run2, n_sequences)
+    _uv_run(dir, category, run2, n_sequences)
     if run1.read_text() != run2.read_text():
         raise ValueError(
             "Reproducibility check failed: two runs with identical inputs produced different sequences."
@@ -183,11 +191,16 @@ if __name__ == "__main__":
         ),
         epilog=(
             "Example:\n"
-            "  python verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027"
+            "  python verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027 generate_broad_spectrum"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("url", help="GitHub repository URL.")
+    parser.add_argument(
+        "category",
+        choices=CATEGORIES,
+        help="Category entry point to verify.",
+    )
     parser.add_argument(
         "--branch", default=None, help="Git branch to clone (default: repo default)."
     )
@@ -196,9 +209,6 @@ if __name__ == "__main__":
         type=Path,
         default=Path("submission"),
         help="Directory to clone the repository into (default: submission).",
-    )
-    parser.add_argument(
-        "--script-name", default="generate", help="uv script entry point to run."
     )
     parser.add_argument(
         "--n-sequences",
@@ -220,8 +230,8 @@ if __name__ == "__main__":
         verify_setup(
             args.dir,
             args.url,
+            args.category,
             branch=args.branch,
-            script_name=args.script_name,
             n_sequences=args.n_sequences,
             extras=args.extras,
         )

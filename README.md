@@ -2,17 +2,31 @@
 
 International competition for generative AI in antimicrobial peptide design.
 
+## Categories
+
+Participants can submit to one or more categories. Each category corresponds to a script entry point:
+
+| Category | Entry point | Metric |
+|----------|-------------|--------|
+| Broad spectrum activity | `generate_broad_spectrum` | Lowest median MIC across strains |
+| Gram+ activity | `generate_gram_pos` | Lowest median MIC across Gram-positive strains |
+| Gram- activity | `generate_gram_neg` | Lowest median MIC across Gram-negative strains |
+| Multi-drug resistant (MDR) activity | `generate_mdr` | Lowest median MIC across MDR ESKAPE strains |
+| Selectivity | `generate_therapeutic` | Highest median therapeutic index (TI = MIC/HC50) across strains |
+
 ## Repository Requirements
 
 Your submission must be hosted on a public GitHub repository that:
 
 - Uses **[`uv`](https://docs.astral.sh/uv/concepts/projects/init/#projects)** for dependency management (include `uv.lock` and a defined Python version)
 - Produces **reproducible** output: running the script twice with the same inputs must produce identical sequences (e.g., by defining a fixed default seed)
-- Exposes a `generate` script entry point runnable as:
+- Exposes one or more category entry points runnable as:
 
 ```bash
-uv run generate --n_sequences <N> --output <model-name>.fasta [additional optional args]
+uv run <entry-point> --n_sequences <N> --output <model-name>.fasta [additional optional args]
 ```
+
+where `<entry-point>` is one of the category entry points listed above.
 
 Any additional optional arguments must have default values so the command runs without them.
 
@@ -39,20 +53,22 @@ uv init --package my-model
 cd my-model
 ```
 
-### 2. Add the `generate` entry point
+### 2. Add category entry points
 
-In `pyproject.toml`, add a `[project.scripts]` section:
+In `pyproject.toml`, add a `[project.scripts]` section with one entry per category you are submitting to:
 
 ```toml
 [project.scripts]
-generate = "my_model.generate:main"
+generate_broad_spectrum = "my_model.generate:main"
+generate_gram_pos = "my_model.generate:main"
+# add only the categories you are submitting to
 ```
 
 Note: to add package dependencies, use `uv add <package>` instead of editing `pyproject.toml` directly.
 
 ### 3. Implement `generate.py`
 
-Your entry point must accept `--n_sequences` and `--output` and write a FASTA file. Use a fixed default seed so output is reproducible:
+Each entry point must accept `--n_sequences` and `--output` and write a FASTA file. Use a fixed default seed so output is reproducible:
 
 ```python
 import argparse
@@ -69,12 +85,14 @@ def main():
     ...
 ```
 
+You can use separate implementations per category or a single shared one, depending on your approach.
+
 ### 4. Run locally
 
 Install dependencies and test your script:
 
 ```bash
-uv run generate --n_sequences 100 --output my-model.fasta
+uv run generate_broad_spectrum --n_sequences 100 --output my-model.fasta
 ```
 
 Required arguments:
@@ -96,7 +114,7 @@ Optional arguments (must have defaults):
 Push your project (including `uv.lock`) to a **public** GitHub repository, then run the validator:
 
 ```bash
-python scripts/verify_submission.py <github-url>
+python scripts/verify_submission.py <github-url> generate_broad_spectrum
 ```
 
 ## Validation
@@ -104,7 +122,7 @@ python scripts/verify_submission.py <github-url>
 Verify your submission with:
 
 ```bash
-python scripts/verify_submission.py <github-url>
+python scripts/verify_submission.py <github-url> <category>
 ```
 
 This clones your repo, installs dependencies, generates 50,000 sequences, verifies they meet the competition requirements, then generates them again to confirm the output is reproducible.
@@ -116,7 +134,7 @@ Additional options:
 | `--branch` | repo default | Git branch to clone |
 | `--dir` | `submission/` | Directory to clone into |
 | `--n-sequences` | `50000` | Number of sequences to generate |
-| `--extra` | — | Optional uv extras to install (repeatable) |
+| `--extra` | — | Optional [uv](https://docs.astral.sh/uv/concepts/projects/init/#projects) extras to install (repeatable) |
 
 ## Project Structure
 
