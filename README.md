@@ -8,10 +8,10 @@ Participants can submit to one or more categories. Each category corresponds to 
 
 | Category | Entry point | Metric |
 |----------|-------------|--------|
-| Broad spectrum activity | `generate_broad_spectrum` | Lowest median MIC across strains |
-| Gram+ activity | `generate_gram_pos` | Lowest median MIC across Gram-positive strains |
-| Gram- activity | `generate_gram_neg` | Lowest median MIC across Gram-negative strains |
-| Multi-drug resistant (MDR) activity | `generate_mdr` | Lowest median MIC across MDR ESKAPE strains |
+| Broad spectrum activity | `generate_broad_spectrum` | Avg. number of strains with MIC ≤ threshold across all strains |
+| Gram+ activity | `generate_gram_pos` | Avg. number of strains with MIC ≤ threshold across Gram-positive strains |
+| Gram- activity | `generate_gram_neg` | Avg. number of strains with MIC ≤ threshold across Gram-negative strains |
+| Multi-drug resistant (MDR) activity | `generate_mdr` | Avg. number of strains with MIC ≤ threshold across MDR ESKAPE strains |
 | Selectivity | `generate_therapeutic` | Highest median therapeutic index (TI = MIC/HC50) across strains |
 
 ## Repository Requirements
@@ -40,7 +40,7 @@ Generated sequences must:
 - Be linear
 - Not contain any end terminus modifications.
 
-## Getting Start
+## Getting Started
 
 This repository also serves as a working example — see [src/amp_challenge_2027/generate.py](src/amp_challenge_2027/generate.py) for a complete implementation that meets all requirements.
 
