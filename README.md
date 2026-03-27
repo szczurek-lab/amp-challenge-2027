@@ -6,7 +6,7 @@ International competition for generative AI in antimicrobial peptide design.
 
 Your submission must be hosted on a public GitHub repository that:
 
-- Uses **`uv`** for dependency management (include `uv.lock` and a defined Python version)
+- Uses **[`uv`](https://docs.astral.sh/uv/concepts/projects/init/#projects)** for dependency management (include `uv.lock` and a defined Python version)
 - Produces **reproducible** output: running the script twice with the same inputs must produce identical sequences (e.g., by defining a fixed default seed)
 - Exposes a `generate` script entry point runnable as:
 
@@ -47,6 +47,8 @@ In `pyproject.toml`, add a `[project.scripts]` section:
 [project.scripts]
 generate = "my_model.generate:main"
 ```
+
+Note: to add package dependencies, use `uv add <package>` instead of editing `pyproject.toml` directly.
 
 ### 3. Implement `generate.py`
 

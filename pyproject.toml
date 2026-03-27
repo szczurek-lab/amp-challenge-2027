@@ -1,7 +1,7 @@
 [project]
 name = "amp-challenge-2027"
 version = "0.1.0"
-description = "Add your description here"
+description = "Minimal example repository"
 readme = "README.md"
 authors = [
     { name = "your name", email = "username@domain.com" }
