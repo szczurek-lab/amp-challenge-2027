@@ -67,7 +67,7 @@ def _uv_run(
         "run",
         "--no-sync",
         category,
-        "--n_sequences",
+        "--n-sequences",
         str(n_sequences),
         "--output",
         str(output_fasta),

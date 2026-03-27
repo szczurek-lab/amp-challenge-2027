@@ -26,7 +26,7 @@ def generate(n_sequences: int, *, length: int, seed: int = 42) -> list[str]:
 def main():
     parser = argparse.ArgumentParser(description="Generate sequences of 'K' and 'P'.")
     parser.add_argument(
-        "--n_sequences",
+        "--n-sequences",
         type=int,
         required=True,
         help="Number of sequences to generate",

@@ -23,7 +23,7 @@ Your submission must be hosted on a public GitHub repository that:
 - Exposes one or more category entry points runnable as:
 
 ```bash
-uv run <entry-point> --n_sequences <N> --output <model-name>.fasta [additional optional args]
+uv run <entry-point> --n-sequences <N> --output <model-name>.fasta [additional optional args]
 ```
 
 where `<entry-point>` is one of the category entry points listed above.
@@ -68,14 +68,14 @@ Note: to add package dependencies, use `uv add <package>` instead of editing `py
 
 ### 3. Implement `generate.py`
 
-Each entry point must accept `--n_sequences` and `--output` and write a FASTA file. Use a fixed default seed so output is reproducible:
+Each entry point must accept `--n-sequences` and `--output` and write a FASTA file. Use a fixed default seed so output is reproducible:
 
 ```python
 import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--n_sequences", type=int, required=True)
+    parser.add_argument("--n-sequences", type=int, required=True)
     parser.add_argument("--output", type=str, required=True)
     parser.add_argument("--seed", type=int, default=42)
     # add any other optional args with defaults here
@@ -92,14 +92,14 @@ You can use separate implementations per category or a single shared one, depend
 Install dependencies and test your script:
 
 ```bash
-uv run generate_broad_spectrum --n_sequences 100 --output my-model.fasta
+uv run generate_broad_spectrum --n-sequences 100 --output my-model.fasta
 ```
 
 Required arguments:
 
 | Flag | Description |
 |------|-------------|
-| `--n_sequences` | Number of sequences to generate |
+| `--n-sequences` | Number of sequences to generate |
 | `--output` | Output FASTA file path |
 
 Optional arguments (must have defaults):
