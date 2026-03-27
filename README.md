@@ -7,6 +7,7 @@ International competition for generative AI in antimicrobial peptide design.
 Your submission must be a public GitHub repository that:
 
 - Uses **`uv`** for dependency management (include `uv.lock` and a defined Python version)
+- Produces **reproducible** output: running the script twice with the same inputs must produce identical sequences (e.g., by defining a fixed default seed)
 - Exposes a `generate` script entry point runnable as:
 
 ```bash
@@ -31,7 +32,7 @@ Verify your submission with:
 python scripts/verify_submission.py <github-url>
 ```
 
-This clones your repo, installs dependencies, generates 50,000 sequences, and checks that the repository structure, entry point, and sequences all meet the competition requirements.
+This clones your repo, installs dependencies, generates 50,000 sequences, verifies they meet the competition requirements, then generates them again to confirm the output is reproducible.
 
 Additional options:
 

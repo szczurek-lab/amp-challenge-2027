@@ -148,21 +148,30 @@ def verify_setup(
     extras: list[str] | None = None,
 ):
     extras = extras or []
-    output_fasta = (dir / "generated.fasta").resolve()
 
-    print(f"[1/4] Cloning {url} → {dir}")
+    print(f"[1/5] Cloning {url} → {dir}")
     _clone_git_repository(dir, url, branch=branch)
 
-    print("[2/4] Installing dependencies")
+    print("[2/5] Installing dependencies")
     _sync_uv(dir, extras)
 
-    print(f"[3/4] Generating {n_sequences} sequences")
-    _uv_run(dir, script_name, output_fasta, n_sequences)
+    run1 = (dir / "generated_run1.fasta").resolve()
+    run2 = (dir / "generated_run2.fasta").resolve()
 
-    print("[4/4] Verifying sequences")
-    _verify_sequences(output_fasta, n_sequences)
+    print(f"[3/5] Generating {n_sequences} sequences")
+    _uv_run(dir, script_name, run1, n_sequences)
 
-    print("\nAll checks passed.")
+    print("[4/5] Verifying sequences")
+    _verify_sequences(run1, n_sequences)
+
+    print("[5/5] Checking reproducibility")
+    _uv_run(dir, script_name, run2, n_sequences)
+    if run1.read_text() != run2.read_text():
+        raise ValueError(
+            "Reproducibility check failed: two runs with identical inputs produced different sequences."
+        )
+
+    print("\nAll checks passed. Submission is valid!")
 
 
 if __name__ == "__main__":
@@ -174,7 +183,7 @@ if __name__ == "__main__":
         ),
         epilog=(
             "Example:\n"
-            "  python verify_submission.py https://github.com/RasmusML/AMP-challenge-2027-example-model"
+            "  python verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
