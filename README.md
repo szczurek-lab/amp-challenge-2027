@@ -2,7 +2,7 @@
 
 International competition for generative AI in antimicrobial peptide design.
 
-## Submission Requirements
+## Repository Requirements
 
 Your submission must be hosted on a public GitHub repository that:
 
@@ -26,7 +26,7 @@ Generated sequences must:
 - Be linear
 - Not contain any end terminus modifications.
 
-## Quick Start
+## Getting Start
 
 This repository also serves as a working example — see [src/amp_challenge_2027/generate.py](src/amp_challenge_2027/generate.py) for a complete implementation that meets all requirements.
 
