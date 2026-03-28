@@ -5,8 +5,8 @@ import sys
 
 
 STANDARD_AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
-MIN_LENGTH = 10
-MAX_LENGTH = 60
+MIN_LENGTH = 8
+MAX_LENGTH = 50
 
 CATEGORIES = [
     "generate_broad_spectrum",

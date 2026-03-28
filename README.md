@@ -35,7 +35,7 @@ Any additional optional arguments must have default values so the command runs w
 Generated sequences must:
 
 - Use only standard amino acid characters (`ACDEFGHIKLMNPQRSTVWY`)
-- Be between 10 and 60 residues long
+- Be between 8 and 50 residues long
 - Be unique (no duplicates)
 - Be linear
 - Not contain any end terminus modifications.
