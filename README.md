@@ -2,6 +2,8 @@
 
 International competition for generative AI in antimicrobial peptide design.
 
+Antimicrobial resistance is one of the most pressing global health challenges. This competition invites participants to develop generative models that design novel antimicrobial peptides (AMPs) with activity against a panel of clinically relevant bacterial strains, including multi-drug resistant ESKAPE pathogens. Submissions are evaluated on predicted minimum inhibitory concentration (MIC) across five categories spanning broad-spectrum activity, Gram-positive and Gram-negative specificity, MDR activity, and therapeutic selectivity.
+
 ## Categories
 
 Participants can submit to one or more categories. Each category corresponds to a script entry point:
@@ -109,13 +111,22 @@ Optional arguments (must have defaults):
 | `--seed` | `42` | Random seed for reproducibility |
 | `--length` | `50` | Length of each generated sequence |
 
-### 5. Verify and submit
+### 5. Verify
 
 Push your project (including `uv.lock`) to a **public** GitHub repository, then run the validator:
 
 ```bash
 python scripts/verify_submission.py <github-url> generate_broad_spectrum
 ```
+
+### 6. Submit
+
+Email the organisers at **[organiser-email]** with the subject line `AMP Challenge 2027 Submission — <your-model-name>` and include:
+
+- The URL of your public GitHub repository
+- The category or categories you are submitting to
+- Your model name
+- A short abstract (max 500 words) describing your approach
 
 ## Validation
 
