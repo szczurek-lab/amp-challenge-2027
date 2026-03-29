@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess
 import argparse
 import sys
-
+import shutil
 
 STANDARD_AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
 MIN_LENGTH = 8
@@ -15,6 +15,11 @@ CATEGORIES = [
     "generate_mdr",
     "generate_therapeutic",
 ]
+
+
+def _check_tool(name: str) -> None:
+    if shutil.which(name) is None:
+        raise RuntimeError(f"'{name}' is not installed or not found on PATH.")
 
 
 def _clone_git_repository(
@@ -157,9 +162,11 @@ def verify_setup(
     extras = extras or []
 
     print(f"[1/5] Cloning {url} → {dir}")
+    _check_tool("git")
     _clone_git_repository(dir, url, branch=branch)
 
     print("[2/5] Installing dependencies")
+    _check_tool("uv")
     _sync_uv(dir, extras)
 
     run1 = (dir / "generated_run1.fasta").resolve()

@@ -116,8 +116,11 @@ Optional arguments (must have defaults):
 Push your project (including `uv.lock`) to a **public** GitHub repository, then run the validator:
 
 ```bash
-python scripts/verify_submission.py <github-url> generate_broad_spectrum
+python scripts/verify_submission.py <github-url> generate_broad_spectrum --n-sequences 100
 ```
+
+> **Note:** Omit `--n-sequences` to run the full 50,000-sequence verification.
+
 
 ### 6. Submit
 
