@@ -56,6 +56,22 @@ Generated sequences must:
 - Be linear
 - Not contain any end terminus modifications.
 
+## Submission Requirements
+
+### Minimum (benchmark participation)
+- Abstract summarizing the method
+- Library of 50,000 designed AMPs
+- Ranked top-100 candidates with selection/ranking documentation
+- Short summary of training data, external databases, and any filters applied
+
+### Full (co-authorship eligibility)
+All of the above, plus:
+- Public GitHub repository with model weights, inference code, and usage docs
+- Permissive OSI-approved license (MIT, BSD-3-Clause, or Apache 2.0)
+- Category entry points runnable via `uv run <entry-point>` generating the 50,000-member library and top-100 list
+- Fixed default random seed (identical output on repeated runs)
+- Full training data disclosure; any non-public data must be released under a permissive license
+
 ## Getting Started
 
 This repository also serves as a working example — see [src/amp_challenge_2027/generate.py](src/amp_challenge_2027/generate.py) for a complete implementation that meets all requirements.
