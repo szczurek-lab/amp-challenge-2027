@@ -16,6 +16,29 @@ CATEGORIES = [
     "generate_therapeutic",
 ]
 
+TOP_SIZE = 100
+LIBRARY_SIZE = 50_000
+
+
+def _read_fasta(path: Path) -> tuple[list[str], list[str]]:
+    headers, sequences = [], []
+    header, seq_parts = None, []
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith(">"):
+            if header is not None:
+                headers.append(header)
+                sequences.append("".join(seq_parts))
+            header, seq_parts = line[1:], []
+        else:
+            seq_parts.append(line.upper())
+    if header is not None:
+        headers.append(header)
+        sequences.append("".join(seq_parts))
+    return headers, sequences
+
 
 def _check_tool(name: str) -> None:
     if shutil.which(name) is None:
@@ -34,11 +57,12 @@ def _clone_git_repository(
 
     repo_dir.parent.mkdir(parents=True, exist_ok=True)
 
-    cmd = [git, "clone", repo_url.removeprefix("git+"), str(repo_dir)]
+    cmd = [git, "clone"]
     if branch:
         cmd += ["-b", branch, "--single-branch"]
     if shallow:
         cmd += ["--depth", "1"]
+    cmd += [repo_url.removeprefix("git+"), str(repo_dir)]
 
     try:
         subprocess.run(cmd, stderr=subprocess.PIPE, text=True, check=True)
@@ -63,20 +87,9 @@ def _sync_uv(repo_dir: Path, extras: list[str], uv: str = "uv") -> None:
 def _uv_run(
     repo_dir: Path,
     category: str,
-    output_fasta: Path,
-    n_sequences: int,
     uv: str = "uv",
 ) -> None:
-    cmd = [
-        uv,
-        "run",
-        "--no-sync",
-        category,
-        "--n-sequences",
-        str(n_sequences),
-        "--output",
-        str(output_fasta),
-    ]
+    cmd = [uv, "run", "--no-sync", category]
     print(f"Running: {' '.join(cmd)}")
     try:
         subprocess.run(cmd, check=True, cwd=repo_dir)
@@ -86,43 +99,17 @@ def _uv_run(
         ) from e
 
 
-def _parse_fasta(fasta_path: Path) -> list[tuple[str, str]]:
-    records: list[tuple[str, str]] = []
-    header: str | None = None
-    seq_parts: list[str] = []
-
-    for line in fasta_path.read_text().splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        if line.startswith(">"):
-            if header is not None:
-                records.append((header, "".join(seq_parts)))
-            header = line[1:]
-            seq_parts = []
-        else:
-            seq_parts.append(line.upper())
-
-    if header is not None:
-        records.append((header, "".join(seq_parts)))
-
-    return records
-
-
-def _verify_sequences(fasta_path: Path, n_sequences: int) -> None:
-    if not fasta_path.exists():
-        raise FileNotFoundError(f"Output FASTA not found: {fasta_path}")
-
-    records = _parse_fasta(fasta_path)
+def _verify_sequences(fasta_path: Path) -> set[str]:
+    headers, sequences = _read_fasta(fasta_path)
     errors: list[str] = []
 
-    if not records:
+    if not sequences:
         errors.append("FASTA file is empty — no sequences found.")
-    elif len(records) != n_sequences:
-        errors.append(f"Expected {n_sequences} sequences, got {len(records)}.")
+    elif len(sequences) != LIBRARY_SIZE:
+        errors.append(f"Expected {LIBRARY_SIZE} sequences, got {len(sequences)}.")
 
     seen: set[str] = set()
-    for i, (header, seq) in enumerate(records, start=1):
+    for i, (header, seq) in enumerate(zip(headers, sequences), start=1):
         if not header.strip():
             errors.append(f"Record {i}: missing header.")
         if not seq:
@@ -150,39 +137,71 @@ def _verify_sequences(fasta_path: Path, n_sequences: int) -> None:
             "Sequence verification failed:\n" + "\n".join(f"  - {e}" for e in errors)
         )
 
+    return seen
+
+
+def _verify_top(top_fasta: Path, full_sequences: set[str], top_k: int) -> None:
+    _, top_sequences = _read_fasta(top_fasta)
+    errors: list[str] = []
+
+    if len(top_sequences) != top_k:
+        errors.append(f"Expected {top_k} sequences, got {len(top_sequences)}.")
+
+    seen: set[str] = set()
+    for i, seq in enumerate(top_sequences, start=1):
+        if seq not in full_sequences:
+            errors.append(f"Record {i}: sequence not found in full library.")
+        if seq in seen:
+            errors.append(f"Record {i}: duplicate sequence in top list.")
+        seen.add(seq)
+
+    if errors:
+        raise ValueError(
+            "Rank verification failed:\n" + "\n".join(f"  - {e}" for e in errors)
+        )
+
 
 def verify_setup(
     dir: Path,
     url: str,
     category: str,
     branch: str | None = None,
-    n_sequences: int = 100,
     extras: list[str] | None = None,
 ):
     extras = extras or []
 
-    print(f"[1/5] Cloning {url} → {dir}")
     _check_tool("git")
+    print(f"[1/6] Cloning {url} → {dir}")
     _clone_git_repository(dir, url, branch=branch)
 
-    print("[2/5] Installing dependencies")
     _check_tool("uv")
+    print("[2/6] Installing dependencies")
     _sync_uv(dir, extras)
 
-    run1 = (dir / "generated_run1.fasta").resolve()
-    run2 = (dir / "generated_run2.fasta").resolve()
+    library_fasta = dir / category / "library.fasta"
+    top_fasta = dir / category / "top.fasta"
 
-    print(f"[3/5] Generating {n_sequences} sequences")
-    _uv_run(dir, category, run1, n_sequences)
+    print("[3/6] Generating library")
+    _uv_run(dir, category)
 
-    print("[4/5] Verifying sequences")
-    _verify_sequences(run1, n_sequences)
+    print("[4/6] Verifying full library")
+    full_sequences = _verify_sequences(library_fasta)
 
-    print("[5/5] Checking reproducibility")
-    _uv_run(dir, category, run2, n_sequences)
-    if run1.read_text() != run2.read_text():
+    print("[5/6] Verifying top list")
+    _verify_top(top_fasta, full_sequences, TOP_SIZE)
+
+    print("[6/6] Checking reproducibility")
+    library_data = library_fasta.read_bytes()
+    top_data = top_fasta.read_bytes()
+    _uv_run(dir, category)
+
+    if library_fasta.read_bytes() != library_data:
         raise ValueError(
-            "Reproducibility check failed: two runs with identical inputs produced different sequences."
+            "Reproducibility check failed: two runs with identical inputs produced different output."
+        )
+    if top_fasta.read_bytes() != top_data:
+        raise ValueError(
+            "Reproducibility check failed: top list differs between runs."
         )
 
     print(f"\nAll checks passed. Submission is valid for category '{category}'!")
@@ -217,12 +236,6 @@ if __name__ == "__main__":
         help="Directory to clone the repository into (default: submission).",
     )
     parser.add_argument(
-        "--n-sequences",
-        type=int,
-        default=50_000,
-        help="Number of sequences to generate.",
-    )
-    parser.add_argument(
         "--extra",
         dest="extras",
         action="append",
@@ -238,7 +251,6 @@ if __name__ == "__main__":
             args.url,
             args.category,
             branch=args.branch,
-            n_sequences=args.n_sequences,
             extras=args.extras,
         )
     except Exception as e:

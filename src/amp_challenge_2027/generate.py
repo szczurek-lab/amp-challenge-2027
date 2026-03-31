@@ -1,5 +1,7 @@
 import argparse
 import os
+import sys
+from pathlib import Path
 
 import numpy as np
 import seqme as sm
@@ -18,39 +20,37 @@ def generate(n_sequences: int, *, length: int, seed: int = 42) -> list[str]:
     samples = rng.binomial(1, p, size=(n_sequences, length))
     labels = np.where(samples, "K", "P")
 
-    sequences = ["".join(row) for row in labels]
+    return ["".join(row) for row in labels]
 
-    return sequences
+
+def score(sequences: list[str]) -> list[float]:
+    """Score sequences for the target category. Higher is better."""
+    return [float(i) for i in range(len(sequences), 0, -1)]
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate sequences of 'K' and 'P'.")
-    parser.add_argument(
-        "--n-sequences",
-        type=int,
-        required=True,
-        help="Number of sequences to generate",
-    )
+    category = Path(sys.argv[0]).stem
 
-    parser.add_argument(
-        "--output",
-        type=str,
-        required=True,
-        help="Output FASTA file path",
-    )
-    parser.add_argument(
-        "--length",
-        type=int,
-        default=50,
-        help="Length of each sequence",
-    )
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--n-sequences", type=int, default=50_000)
+    parser.add_argument("--top-k", type=int, default=100)
+    parser.add_argument("--length", type=int, default=50)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
-    print("Running model...")
+    out_dir = Path(category)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    sequences = generate(args.n_sequences, length=args.length)
+    sequences = generate(args.n_sequences, length=args.length, seed=args.seed)
 
-    sm.to_fasta(sequences, args.output)
+    library_path = out_dir / "library.fasta"
+    sm.to_fasta(sequences, library_path)
+    print(f"Generated {len(sequences)} sequences → {library_path}")
 
-    print(f"Generated {len(sequences)} sequences → {args.output}")
+    scores = score(sequences)
+    ranked = sorted(zip(scores, sequences), key=lambda x: x[0], reverse=True)
+    top_sequences = [seq for _, seq in ranked[: args.top_k]]
+
+    top_path = out_dir / "top.fasta"
+    sm.to_fasta(top_sequences, top_path)
+    print(f"Top {args.top_k} sequences → {top_path}")
