@@ -30,32 +30,6 @@ Participants can submit to one or more categories. Each category corresponds to 
 | Multi-Drug Resistant (MDR) Activity | `generate_mdr` | Team avg. of (MDR Success Rate) × (Geometric Mean RP across MDR ESKAPE strains) |
 | Optimal Selectivity | `generate_therapeutic` | Team avg. of (Overall Success Rate) × (TI); peptides must meet RP ≥ 0.25 in ≥ 1 strain (completely inactive sequences excluded); ties broken by lowest geometric mean MIC across all tested strains |
 
-## Repository Requirements
-
-Your submission must be hosted on a public GitHub repository that:
-
-- Uses **[`uv`](https://docs.astral.sh/uv/concepts/projects/init/#projects)** for dependency management (include `uv.lock` and a defined Python version)
-- Produces **reproducible** output: running the script twice with the same inputs must produce identical sequences (e.g., by defining a fixed default seed)
-- Exposes one or more category entry points runnable as:
-
-```bash
-uv run <entry-point> [additional optional args]
-```
-
-where `<entry-point>` is one of the category entry points listed above.
-
-Any additional optional arguments must have default values so the command runs without them.
-
-## Sequence Requirements
-
-Generated sequences must:
-
-- Use only standard amino acid characters (`ACDEFGHIKLMNPQRSTVWY`)
-- Be between 8 and 50 residues long
-- Be unique (no duplicates)
-- Be linear
-- Not contain any end terminus modifications.
-
 ## Submission Requirements
 
 ### Minimum (benchmark participation)
@@ -68,9 +42,20 @@ Generated sequences must:
 All of the above, plus:
 - Public GitHub repository with model weights, inference code, and usage docs
 - Permissive OSI-approved license (MIT, BSD-3-Clause, or Apache 2.0)
-- Category entry points runnable via `uv run <entry-point>` generating the 50,000-member library and top-100 list
+- Uses **[`uv`](https://docs.astral.sh/uv/concepts/projects/init/#projects)** for dependency management (include `uv.lock` and a defined Python version)
+- Category entry points runnable via `uv run <entry-point>` generating the 50,000-member library and top-100 list; any additional arguments must have defaults
 - Fixed default random seed (identical output on repeated runs)
 - Full training data disclosure; any non-public data must be released under a permissive license
+
+## Sequence Requirements
+
+Generated sequences must:
+
+- Use only the 20 standard proteinogenic amino acids (`ACDEFGHIKLMNPQRSTVWY`)
+- Be between 8 and 50 residues long
+- Be unique (no duplicates)
+- Be linear with free termini (no terminal modifications, including amidation)
+- Exclude noncanonical amino acids, stapled peptides, peptidomimetics, and chemically modified variants (lipidated, glycosylated, PEGylated, dendrimeric, etc.)
 
 ## Getting Started
 
