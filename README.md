@@ -89,7 +89,7 @@ Running any entry point produces two files in a subdirectory named after the cat
 
 ```
 generate_broad_spectrum/
-  library.fasta   ← full 50,000-sequence library
+  library.fasta  ← full 50,000-sequence library
   top.fasta      ← top-100 ranked sequences
 ```
 
