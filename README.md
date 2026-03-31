@@ -93,13 +93,6 @@ generate_broad_spectrum/
   top.fasta      ← top-100 ranked sequences
 ```
 
-The only function you need to implement is `score()`. The category name comes from `sys.argv[0]`, so a single `main()` works for all entry points:
-
-```python
-def score(sequences):
-    """Score sequences for the target category. Higher is better."""
-    ...
-```
 
 See [src/amp_challenge_2027/generate.py](src/amp_challenge_2027/generate.py) for a complete example.
 
