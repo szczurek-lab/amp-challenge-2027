@@ -6,17 +6,15 @@ Antimicrobial resistance is one of the most pressing global health challenges. T
 
 ## Definitions and Parameters
 
-**References:** Polymyxin B for the Gram-negative panel; Daptomycin for the Gram-positive panel.
+**Measurements:** Minimum Inhibitory Concentration (MIC) and half-maximal hemolytic concentration (HC50) are recorded in micromolar (uM). The highest tested MIC concentration is 64 uM. For strains where no growth inhibition is observed at this limit, MIC is recorded as >64 uM.
 
-**Measurements:** Minimum Inhibitory Concentration (MIC) and half-maximal hemolytic concentration (HC50) are recorded in micromolar (uM).
+**Success Rate:** The percentage of tested strains within a specified panel (Overall, Gram-positive, Gram-negative, or MDR) where the candidate peptide meets the Potency Threshold.
 
-**Potency Threshold:** A peptide is classified as active against a specific strain if its Relative Potency satisfies RP ≥ 0.25, where RP = MIC_reference / MIC_candidate.
+**MIC50:** The median MIC value across all strains in the relevant panel (50th percentile).
 
-**Success Rate:** The percentage of tested strains within a specified panel (Overall, Gram-positive, Gram-negative, or MDR) where the candidate peptide successfully meets the Potency Threshold.
+**MIC90:** The MIC value at the 90th percentile across all strains in the relevant panel.
 
-**MIC50:** The median MIC value across all strains in the relevant panel, representing the concentration at which half of tested strains are inhibited.
-
-**Therapeutic Index (TI):** Calculated as the ratio of toxicity to the aggregate potency across the entire 20-strain panel: TI = HC50 / MIC50 (Geometric Mean MIC across all 20 strains). For non-hemolytic peptides reaching the 128 uM assay limit, HC50 is recorded as >128 uM, yielding an inequality for the TI.
+**Safety Window (SW):** Calculated as SW = HC50 / MIC50 across all 20 strains. For non-hemolytic peptides reaching the 128 uM assay limit, HC50 is recorded as >128 uM, yielding an inequality for the SW.
 
 ## Categories
 
@@ -24,11 +22,11 @@ Participants can submit to one or more categories. Each category corresponds to 
 
 | Category | Entry point | Ranking metric |
 |----------|-------------|----------------|
-| Broad Spectrum Activity | `generate_broad_spectrum` | Team avg. of (Overall Success Rate) × (Geometric Mean RP) |
-| Gram-Positive Activity | `generate_gram_pos` | Team avg. of (Gram-positive Success Rate) × (Geometric Mean RP across Gram-positive strains) |
-| Gram-Negative Activity | `generate_gram_neg` | Team avg. of (Gram-negative Success Rate) × (Geometric Mean RP across Gram-negative strains) |
-| Multi-Drug Resistant (MDR) Activity | `generate_mdr` | Team avg. of (MDR Success Rate) × (Geometric Mean RP across MDR ESKAPE strains) |
-| Optimal Selectivity | `generate_therapeutic` | Team avg. of (Overall Success Rate) × (TI); peptides must meet RP ≥ 0.25 in ≥ 1 strain (completely inactive sequences excluded); ties broken by lowest geometric mean MIC across all tested strains |
+| Broad Spectrum Activity | `generate_broad_spectrum` | Team avg. of (Overall Success Rate); ties broken by MIC90 across all 20 strains |
+| Gram-Positive Activity | `generate_gram_pos` | Team avg. of (Gram-positive Success Rate); ties broken by MIC50 across Gram-positive strains |
+| Gram-Negative Activity | `generate_gram_neg` | Team avg. of (Gram-negative Success Rate); ties broken by MIC50 across Gram-negative strains |
+| Multi-Drug Resistant (MDR) Activity | `generate_mdr` | Team avg. of (MDR Success Rate); ties broken by MIC50 across MDR ESKAPE strains |
+| Optimal Selectivity | `generate_therapeutic` | Team avg. of SW; peptides must meet Potency Threshold (MIC ≤ 16 uM) in ≥ 1 strain (completely inactive sequences excluded); ties on non-hemolytic inequalities broken by lowest MIC50 across all tested strains |
 
 ## Submission Requirements
 
@@ -118,7 +116,7 @@ Optional arguments (must have defaults):
 Push your project (including `uv.lock`) to a **public** GitHub repository, then run the validator:
 
 ```bash
-python scripts/verify_submission.py <github-url> generate_broad_spectrum
+uv run python scripts/verify_submission.py <github-url> generate_broad_spectrum
 ```
 
 
@@ -131,7 +129,7 @@ To submit, fill out the Google Form: [[template]]([template])
 Verify your submission with:
 
 ```bash
-python scripts/verify_submission.py <github-url> <category>
+uv run python scripts/verify_submission.py <github-url> <category>
 ```
 
 This clones your repo, installs dependencies, generates the full library and ranked top-100 into `<category>/library.fasta` and `<category>/top.fasta`, verifies both files, then generates them again to confirm the output is reproducible.
@@ -143,6 +141,7 @@ This clones your repo, installs dependencies, generates the full library and ran
 | `--branch` | repo default | Git branch to clone |
 | `--dir` | `submission/` | Directory to clone into |
 | `--extra` | — | Optional [uv](https://docs.astral.sh/uv/concepts/projects/init/#projects) extras to install (repeatable) |
+| `--antibacterial-fasta` | `data/antibacterial.fasta` | FASTA file of known antibacterial sequences to check for overlap |
 
 ## Project Structure
 

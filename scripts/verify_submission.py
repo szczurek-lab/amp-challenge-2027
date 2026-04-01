@@ -1,8 +1,11 @@
 from pathlib import Path
 import subprocess
 import argparse
+import os
 import sys
 import shutil
+
+import Levenshtein
 
 STANDARD_AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
 MIN_LENGTH = 8
@@ -90,9 +93,10 @@ def _uv_run(
     uv: str = "uv",
 ) -> None:
     cmd = [uv, "run", "--no-sync", category]
+    env = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
     print(f"Running: {' '.join(cmd)}")
     try:
-        subprocess.run(cmd, check=True, cwd=repo_dir)
+        subprocess.run(cmd, check=True, cwd=repo_dir, env=env)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(
             f"Plugin subprocess failed with exit code {e.returncode}."
@@ -139,6 +143,23 @@ def _verify_sequences(fasta_path: Path) -> set[str]:
 
     return seen
 
+def _veritfy_max_simularity(sequences: set[str], references: set[str], threshold: float = 0.8) -> None:
+    for seq in sequences:
+        for ref in references:
+            if Levenshtein.ratio(seq, ref) >= threshold:
+                raise ValueError(
+                    f"Similarity check failed: sequence '{seq}' has similarity "
+                    f">= {threshold} with reference '{ref}'."
+                )
+
+
+def _verify_no_overlap(full_sequences: set[str], antibacterial_sequences: set[str]) -> None:
+    overlap = full_sequences & antibacterial_sequences
+    if overlap:
+        raise ValueError(
+            f"Overlap check failed: {len(overlap)} sequence(s) found in antibacterial reference."
+        )
+
 
 def _verify_top(top_fasta: Path, full_sequences: set[str], top_k: int) -> None:
     _, top_sequences = _read_fasta(top_fasta)
@@ -167,30 +188,42 @@ def verify_setup(
     category: str,
     branch: str | None = None,
     extras: list[str] | None = None,
+    antibacterial_fasta: Path | None = None,
 ):
     extras = extras or []
 
     _check_tool("git")
-    print(f"[1/6] Cloning {url} → {dir}")
+    print(f"[1] Cloning {url} → {dir}")
     _clone_git_repository(dir, url, branch=branch)
 
     _check_tool("uv")
-    print("[2/6] Installing dependencies")
+    print("[2] Installing dependencies")
     _sync_uv(dir, extras)
 
     library_fasta = dir / category / "library.fasta"
     top_fasta = dir / category / "top.fasta"
 
-    print("[3/6] Generating library")
+    print("[3] Generating library")
     _uv_run(dir, category)
 
-    print("[4/6] Verifying full library")
+    print("[4] Verifying full library")
     full_sequences = _verify_sequences(library_fasta)
 
-    print("[5/6] Verifying top list")
+    print("[5] Verifying top list")
     _verify_top(top_fasta, full_sequences, TOP_SIZE)
 
-    print("[6/6] Checking reproducibility")
+    if antibacterial_fasta is not None:
+        _, antibacterial_sequences = _read_fasta(antibacterial_fasta)
+        antibacterial_set = set(antibacterial_sequences)
+
+        print(f"[6] Checking library overlap with {antibacterial_fasta}")
+        _verify_no_overlap(full_sequences, antibacterial_set)
+
+        print(f"[7] Checking top similarity with {antibacterial_fasta}")
+        _, top_sequences = _read_fasta(top_fasta)
+        _veritfy_max_simularity(set(top_sequences), antibacterial_set)
+
+    print("[8] Checking reproducibility" if antibacterial_fasta is not None else "[6] Checking reproducibility")
     library_data = library_fasta.read_bytes()
     top_data = top_fasta.read_bytes()
     _uv_run(dir, category)
@@ -216,7 +249,7 @@ if __name__ == "__main__":
         ),
         epilog=(
             "Example:\n"
-            "  python verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027 generate_broad_spectrum"
+            "  python scripts/verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027 generate_broad_spectrum"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -243,6 +276,12 @@ if __name__ == "__main__":
         metavar="EXTRA",
         help="Optional uv extras to install (repeatable).",
     )
+    parser.add_argument(
+        "--antibacterial-fasta",
+        type=Path,
+        default=Path("data/antibacterial.fasta"),
+        help="FASTA file of known antibacterial sequences to check for overlap (default: data/antibacterial.fasta).",
+    )
     args = parser.parse_args()
 
     try:
@@ -252,6 +291,7 @@ if __name__ == "__main__":
             args.category,
             branch=args.branch,
             extras=args.extras,
+            antibacterial_fasta=args.antibacterial_fasta,
         )
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
