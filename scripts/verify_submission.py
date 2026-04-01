@@ -146,10 +146,10 @@ def _verify_sequences(fasta_path: Path) -> set[str]:
 def _veritfy_max_simularity(sequences: set[str], references: set[str], threshold: float = 0.8) -> None:
     for seq in sequences:
         for ref in references:
-            if Levenshtein.ratio(seq, ref) >= threshold:
+            if Levenshtein.ratio(seq, ref) > threshold:
                 raise ValueError(
                     f"Similarity check failed: sequence '{seq}' has similarity "
-                    f">= {threshold} with reference '{ref}'."
+                    f"> {threshold} with reference '{ref}'."
                 )
 
 
