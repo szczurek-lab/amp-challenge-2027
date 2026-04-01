@@ -1,8 +1,8 @@
 # AMP Challenge 2027
 
-International competition for generative AI in antimicrobial peptide design.
+> International competition for generative AI in antimicrobial peptide design.
 
-Antimicrobial resistance is one of the most pressing global health challenges. This competition invites participants to develop generative models that design novel antimicrobial peptides (AMPs) with activity against a panel of clinically relevant bacterial strains, including multi-drug resistant ESKAPE pathogens. Submissions are evaluated on predicted minimum inhibitory concentration (MIC) across five categories spanning broad-spectrum activity, Gram-positive and Gram-negative specificity, MDR activity, and therapeutic selectivity.
+Antimicrobial resistance is one of the most pressing global health challenges. This competition invites participants to develop generative models that design novel antimicrobial peptides (AMPs) with activity against a panel of clinically relevant bacterial strains, including multi-drug resistant ESKAPE pathogens.
 
 ## Categories
 
