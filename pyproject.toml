@@ -11,7 +11,6 @@ requires-python = ">=3.10"
 dependencies = [
     "levenshtein>=0.27.3",
     "numpy>=2.2.6",
-    "seqme>=0.5.0",
 ]
 
 [project.scripts]

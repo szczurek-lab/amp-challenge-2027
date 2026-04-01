@@ -4,7 +4,12 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import seqme as sm
+
+
+def _write_fasta(sequences: list[str], path: Path) -> None:
+    with open(path, "w") as f:
+        for i, seq in enumerate(sequences, start=1):
+            f.write(f">seq{i}\n{seq}\n")
 
 
 def generate(n_sequences: int, *, length: int, seed: int = 42) -> list[str]:
@@ -44,7 +49,7 @@ def main():
     sequences = generate(args.n_sequences, length=args.length, seed=args.seed)
 
     library_path = out_dir / "library.fasta"
-    sm.to_fasta(sequences, library_path)
+    _write_fasta(sequences, library_path)
     print(f"Generated {len(sequences)} sequences → {library_path}")
 
     scores = score(sequences)
@@ -52,5 +57,5 @@ def main():
     top_sequences = [seq for _, seq in ranked[: args.top_k]]
 
     top_path = out_dir / "top.fasta"
-    sm.to_fasta(top_sequences, top_path)
+    _write_fasta(top_sequences, top_path)
     print(f"Top {args.top_k} sequences → {top_path}")
