@@ -112,7 +112,7 @@ uv run python scripts/verify_submission.py <github-url> generate_broad_spectrum
 
 ### 6. Submit
 
-To submit, fill out the Google Form: TBA
+To submit, fill out the Google Form: https://forms.gle/cgDqw7cZe49awwRv6
 
 ## Validation
 
