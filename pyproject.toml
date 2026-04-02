@@ -1,0 +1,25 @@
+[project]
+name = "amp-challenge-2027"
+version = "0.1.0"
+description = "Minimal example repository"
+readme = "README.md"
+authors = [
+    { name = "your name", email = "username@domain.com" }
+]
+
+requires-python = ">=3.10"
+dependencies = [
+    "levenshtein>=0.27.3",
+    "numpy>=2.2.6",
+]
+
+[project.scripts]
+generate_broad_spectrum = "amp_challenge_2027.generate:main"
+generate_gram_pos = "amp_challenge_2027.generate:main"
+generate_gram_neg = "amp_challenge_2027.generate:main"
+generate_mdr = "amp_challenge_2027.generate:main"
+generate_therapeutic = "amp_challenge_2027.generate:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
