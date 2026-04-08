@@ -23,6 +23,7 @@ Participants can submit to one or more categories. Each category corresponds to 
 - Library of 50,000 designed AMPs
 - Ranked top-100 candidates with selection/ranking documentation
 - Short summary of training data, external databases, and any filters applied
+- GitHub repository (private is fine) with model weights and inference code; grant read access to [@RasmusML](https://github.com/RasmusML) and [@szymczakpau](https://github.com/szymczakpau)
 
 ### Full (co-authorship eligibility)
 All of the above, plus:
