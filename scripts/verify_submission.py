@@ -11,13 +11,7 @@ STANDARD_AMINO_ACIDS = set("ACDEFGHIKLMNPQRSTVWY")
 MIN_LENGTH = 8
 MAX_LENGTH = 50
 
-CATEGORIES = [
-    "generate_broad_spectrum",
-    "generate_gram_pos",
-    "generate_gram_neg",
-    "generate_mdr",
-    "generate_therapeutic",
-]
+ENTRY_POINT = "generate_broad_spectrum"
 
 TOP_SIZE = 100
 LIBRARY_SIZE = 50_000
@@ -89,10 +83,9 @@ def _sync_uv(repo_dir: Path, extras: list[str], uv: str = "uv") -> None:
 
 def _uv_run(
     repo_dir: Path,
-    category: str,
     uv: str = "uv",
 ) -> None:
-    cmd = [uv, "run", "--no-sync", category]
+    cmd = [uv, "run", "--no-sync", ENTRY_POINT]
     env = {k: v for k, v in os.environ.items() if k != "VIRTUAL_ENV"}
     print(f"Running: {' '.join(cmd)}")
     try:
@@ -185,7 +178,6 @@ def _verify_top(top_fasta: Path, full_sequences: set[str], top_k: int) -> None:
 def verify_setup(
     dir: Path,
     url: str,
-    category: str,
     branch: str | None = None,
     extras: list[str] | None = None,
     antibacterial_fasta: Path | None = None,
@@ -200,11 +192,11 @@ def verify_setup(
     print("[2] Installing dependencies")
     _sync_uv(dir, extras)
 
-    library_fasta = dir / category / "library.fasta"
-    top_fasta = dir / category / "top.fasta"
+    library_fasta = dir / ENTRY_POINT / "library.fasta"
+    top_fasta = dir / ENTRY_POINT / "top.fasta"
 
     print("[3] Generating library")
-    _uv_run(dir, category)
+    _uv_run(dir)
 
     print("[4] Verifying full library")
     full_sequences = _verify_sequences(library_fasta)
@@ -226,7 +218,7 @@ def verify_setup(
     print("[8] Checking reproducibility" if antibacterial_fasta is not None else "[6] Checking reproducibility")
     library_data = library_fasta.read_bytes()
     top_data = top_fasta.read_bytes()
-    _uv_run(dir, category)
+    _uv_run(dir)
 
     if library_fasta.read_bytes() != library_data:
         raise ValueError(
@@ -237,7 +229,7 @@ def verify_setup(
             "Reproducibility check failed: top list differs between runs."
         )
 
-    print(f"\nAll checks passed. Submission is valid for category '{category}'!")
+    print("\nAll checks passed. Submission is valid!")
 
 
 if __name__ == "__main__":
@@ -249,16 +241,11 @@ if __name__ == "__main__":
         ),
         epilog=(
             "Example:\n"
-            "  python scripts/verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027 generate_broad_spectrum"
+            "  python scripts/verify_submission.py https://github.com/szczurek-lab/amp-challenge-2027"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("url", help="GitHub repository URL.")
-    parser.add_argument(
-        "category",
-        choices=CATEGORIES,
-        help="Category entry point to verify.",
-    )
     parser.add_argument(
         "--branch", default=None, help="Git branch to clone (default: repo default)."
     )
@@ -288,7 +275,6 @@ if __name__ == "__main__":
         verify_setup(
             args.dir,
             args.url,
-            args.category,
             branch=args.branch,
             extras=args.extras,
             antibacterial_fasta=args.antibacterial_fasta,

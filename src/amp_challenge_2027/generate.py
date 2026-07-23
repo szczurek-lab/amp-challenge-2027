@@ -29,12 +29,12 @@ def generate(n_sequences: int, *, length: int, seed: int = 42) -> list[str]:
 
 
 def score(sequences: list[str]) -> list[float]:
-    """Score sequences for the target category. Higher is better."""
+    """Score sequences. Higher is better."""
     return [float(i) for i in range(len(sequences), 0, -1)]
 
 
 def main():
-    category = Path(sys.argv[0]).stem
+    entry_point = Path(sys.argv[0]).stem
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--n-sequences", type=int, default=50_000)
@@ -43,7 +43,7 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
-    out_dir = Path(category)
+    out_dir = Path(entry_point)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     sequences = generate(args.n_sequences, length=args.length, seed=args.seed)
