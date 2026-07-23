@@ -18,7 +18,7 @@ All of the above, plus:
 - Public GitHub repository with model weights, inference code, and usage docs
 - Permissive OSI-approved license (MIT, BSD-3-Clause, or Apache 2.0)
 - Uses **[`uv`](https://docs.astral.sh/uv/concepts/projects/init/#projects)** for dependency management (include `uv.lock` and a defined Python version)
-- Entry point runnable via `uv run generate_broad_spectrum` generating the 50,000-member library and top-100 list; any additional arguments must have defaults
+- Entry point runnable via `uv run generate` generating the 50,000-member library and top-100 list; any additional arguments must have defaults
 - Fixed default random seed (identical output on repeated runs)
 - Full training data disclosure; any non-public data must be released under a permissive license
 
@@ -53,17 +53,17 @@ In `pyproject.toml`, add a `[project.scripts]` section:
 
 ```toml
 [project.scripts]
-generate_broad_spectrum = "my_model.generate:main"
+generate = "my_model.generate:main"
 ```
 
 Note: to add package dependencies, use `uv add <package>` instead of editing `pyproject.toml` directly.
 
 ### 3. Implement `generate.py`
 
-Running the entry point produces two files in a `generate_broad_spectrum/` subdirectory:
+Running the entry point produces two files in a `generate/` subdirectory:
 
 ```
-generate_broad_spectrum/
+generate/
   library.fasta  ← full 50,000-sequence library
   top.fasta      ← top-100 ranked sequences
 ```
@@ -76,7 +76,7 @@ See [src/amp_challenge_2027/generate.py](src/amp_challenge_2027/generate.py) for
 Install dependencies and test your script:
 
 ```bash
-uv run generate_broad_spectrum
+uv run generate
 ```
 
 Optional arguments (must have defaults):
@@ -109,7 +109,7 @@ Verify your submission with:
 uv run python scripts/verify_submission.py <github-url>
 ```
 
-This clones your repo, installs dependencies, generates the full library and ranked top-100 into `generate_broad_spectrum/library.fasta` and `generate_broad_spectrum/top.fasta`, verifies both files, then generates them again to confirm the output is reproducible.
+This clones your repo, installs dependencies, generates the full library and ranked top-100 into `generate/library.fasta` and `generate/top.fasta`, verifies both files, then generates them again to confirm the output is reproducible.
 
 | Argument | Default | Description |
 |----------|---------|-------------|
