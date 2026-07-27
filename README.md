@@ -99,7 +99,7 @@ uv run python scripts/verify_submission.py <github-url>
 
 ### 6. Submit
 
-To submit, fill out the Google Form: https://forms.gle/cgDqw7cZe49awwRv6
+To submit, head to the Kaggle competition page: https://www.kaggle.com/competitions/amp-challenge
 
 ## Validation
 
